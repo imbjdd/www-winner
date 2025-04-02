@@ -1,0 +1,6 @@
+- [ ] Create a new HONC app with D1
+- [ ] Create a new D1 database
+- [ ] Update the binding and package.json
+- [ ] Run the app and show the API
+- [ ] Add assets binding
+- [ ] Update the schema

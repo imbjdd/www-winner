@@ -1,0 +1,33 @@
+{
+  "name": "www-berlin",
+  "scripts": {
+    "dev": "wrangler dev src/index.ts",
+    "deploy": "wrangler deploy --minify src/index.ts",
+    "db:touch": "wrangler d1 execute www-berlin --local --command='SELECT 1'",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "wrangler d1 migrations apply www-berlin --local",
+    "db:migrate:prod": "ENVIRONMENT=production drizzle-kit migrate",
+    "db:seed": "tsx seed.ts",
+    "db:seed:prod": "ENVIRONMENT=production tsx seed.ts",
+    "db:setup": "npm run db:touch && npm run db:generate && npm run db:migrate && npm run db:seed",
+    "db:studio": "drizzle-kit studio",
+    "fiberplane": "npx @fiberplane/studio@latest"
+  },
+  "dependencies": {
+    "@fiberplane/hono": "^0.4.2",
+    "dotenv": "^16.4.5",
+    "drizzle-orm": "^0.39.3",
+    "hono": "^4.7.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250204.0",
+    "@fiberplane/hono-otel": "^0.6.2",
+    "@libsql/client": "^0.14.0",
+    "drizzle-kit": "^0.30.4",
+    "drizzle-seed": "^0.3.1",
+    "tsx": "^4.19.2",
+    "typescript": "^5.5.4",
+    "wrangler": "^3.107.3"
+  }
+}

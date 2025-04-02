@@ -1,0 +1,20 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1739986781498,
+      "tag": "0000_yielding_eddie_brock",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1739987147566,
+      "tag": "0001_pale_mikhail_rasputin",
+      "breakpoints": true
+    }
+  ]
+}

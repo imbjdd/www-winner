@@ -1,0 +1,36 @@
+name = "www-berlin"
+compatibility_date = "2025-02-04"
+compatibility_flags = ["nodejs_compat"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "www-berlin"
+database_id = "ac4285cc-93fa-47ed-8699-01e48b1f9925"
+migrations_dir = "drizzle/migrations"
+
+[assets]
+directory = "public"
+
+[[r2_buckets]]
+bucket_name = "www-berlin"
+binding = "BUCKET"
+
+# [vars]
+# MY_VAR = "my-variable"
+
+# Workers Logs
+# Docs: https://developers.cloudflare.com/workers/observability/logs/workers-logs/
+# Configuration: https://developers.cloudflare.com/workers/observability/logs/workers-logs/#enable-workers-logs
+[observability]
+enabled = true
+
+# [[kv_namespaces]]
+# binding = "MY_KV_NAMESPACE"
+# id = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+
+# [[r2_buckets]]
+# binding = "MY_BUCKET"
+# bucket_name = "my-bucket"
+
+[ai]
+binding = "AI"
