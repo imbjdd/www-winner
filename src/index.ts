@@ -28,18 +28,31 @@ app.post("/api/user", async (c) => {
   const formData = await c.req.formData();
   const name = formData.get("name");
   const email = formData.get("email");
-  const profile = formData.get("profile-pic") as File;
+  const profilePic = formData.get("profile-pic");
 
   if (!name || !email) {
     return c.json({ error: "Name and email are required" }, 400);
   }
-  await r2.put("profile-pics/" + profile.name, profile);
+
+  let thumbnailPath = "";
+  // Type guard to check if profilePic is a File-like object
+  const isFile = (value: unknown): value is { name: string } => 
+    value !== null && 
+    typeof value === 'object' && 
+    'name' in value;
+    
+  if (profilePic && isFile(profilePic)) {
+    thumbnailPath = "profile-pics/" + profilePic.name;
+    await r2.put(thumbnailPath, profilePic);
+  }
+
   const [newUser] = await db
     .insert(schema.users)
     .values({
-      name: name,
-      email: email,
-      thumbnail: "profile-pics/" + profile.name,
+      name: name.toString(),
+      email: email.toString(),
+      thumbnail: thumbnailPath || null,
+      history: "[]", // Initialize empty history array as JSON string
     })
     .returning();
 
@@ -63,7 +76,7 @@ app.post("/api/ai", async (c) => {
 });
 
 app.get("/openapi.json", (c) => {
-  const spec = createOpenAPISpec(app, {
+  const spec = createOpenAPISpec(app as any, {
     info: { title: "My API", version: "1.0.0" },
   });
   return c.json(spec);

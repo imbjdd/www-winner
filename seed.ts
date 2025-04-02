@@ -9,6 +9,7 @@ import {
 import { seed } from "drizzle-seed";
 
 import * as schema from "./src/db/schema";
+import { users } from "./src/db/schema";
 import path from "node:path";
 import fs from "node:fs";
 import { config } from "dotenv";
@@ -27,9 +28,14 @@ async function seedDatabase() {
   }
 
   try {
-    // Read more about seeding here: https://orm.drizzle.team/docs/seed-overview#drizzle-seed
-    await seed(db, schema);
-    console.log("✅ Database seeded successfully!");
+    // Custom seed logic - using direct table insert instead of drizzle-seed
+    const testUser = await db.insert(users).values({
+      name: "Test User",
+      email: "test@example.com",
+      history: "[]",
+    }).returning();
+    
+    console.log("✅ Database seeded successfully with test user:", testUser);
     if (!isProd) {
       console.log("🪿 Run `npm run fiberplane` to explore data with your api.");
     }

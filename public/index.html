@@ -42,21 +42,68 @@
         max-width: 100%;
         max-height: 100%;
       }
-      .submit-btn {
+      .submit-btn, .view-btn {
         background-color: #4caf50;
         color: white;
         padding: 10px 15px;
         border: none;
         border-radius: 4px;
         cursor: pointer;
+        margin-right: 10px;
+      }
+      .view-btn {
+        background-color: #2196F3;
       }
       .submit-btn:hover {
         background-color: #45a049;
       }
+      .view-btn:hover {
+        background-color: #0b7dda;
+      }
+      .user-card {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 15px;
+        margin: 20px 0;
+        background-color: #f9f9f9;
+        display: none;
+      }
+      .user-card h3 {
+        margin-top: 0;
+        color: #333;
+      }
+      .user-thumbnail {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background-color: #e0e0e0;
+        margin-right: 15px;
+      }
+      .user-info {
+        display: flex;
+        align-items: center;
+      }
+      .user-details {
+        flex: 1;
+      }
+      .user-list {
+        margin-top: 30px;
+        display: none;
+      }
+      .section-title {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+      }
     </style>
   </head>
   <body>
-    <h1>User Registration</h1>
+    <div class="section-title">
+      <h1>User Registration</h1>
+      <button id="view-users-btn" class="view-btn">View All Users</button>
+    </div>
+    
     <form method="post" enctype="multipart/form-data">
       <div class="form-group">
         <label for="name">Full Name:</label>
@@ -85,6 +132,54 @@
       <button type="submit" class="submit-btn">Register</button>
     </form>
 
+    <!-- Current User Card -->
+    <div class="user-card" id="current-user">
+      <h3>Registration Complete</h3>
+      <div class="user-info">
+        <div class="user-thumbnail" id="user-thumbnail">
+          <img id="user-img" src="" alt="Profile Picture" style="width: 100%; height: 100%; object-fit: cover; display: none;">
+          <span id="no-user-img" style="display: flex; height: 100%; align-items: center; justify-content: center;">No Image</span>
+        </div>
+        <div class="user-details">
+          <p><strong>Name:</strong> <span id="user-name"></span></p>
+          <p><strong>Email:</strong> <span id="user-email"></span></p>
+          <p><strong>Created:</strong> <span id="user-created"></span></p>
+          <p><strong>History:</strong> <span id="user-history"></span></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- View User by ID Section -->
+    <div style="margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9;">
+      <h3>View User by ID</h3>
+      <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+        <input type="number" id="user-id-input" placeholder="Enter user ID" style="flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+        <button id="view-user-btn" class="view-btn">View User</button>
+      </div>
+      <div id="user-by-id-result" style="display: none;">
+        <div class="user-info">
+          <div class="user-thumbnail" id="user-by-id-thumbnail">
+            <span id="user-by-id-no-img" style="display: flex; height: 100%; align-items: center; justify-content: center;">No Image</span>
+            <img id="user-by-id-img" src="" alt="Profile Picture" style="width: 100%; height: 100%; object-fit: cover; display: none;">
+          </div>
+          <div class="user-details">
+            <p><strong>ID:</strong> <span id="user-by-id-id"></span></p>
+            <p><strong>Name:</strong> <span id="user-by-id-name"></span></p>
+            <p><strong>Email:</strong> <span id="user-by-id-email"></span></p>
+            <p><strong>Created:</strong> <span id="user-by-id-created"></span></p>
+            <p><strong>History:</strong> <span id="user-by-id-history"></span></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- All Users Section -->
+    <div class="user-list" id="all-users-section">
+      <h2>All Users</h2>
+      <div id="users-container"></div>
+      <button id="back-to-register" class="submit-btn">Back to Registration</button>
+    </div>
+
     <script>
       function previewImage(input) {
         const preview = document.getElementById("image-preview");
@@ -104,6 +199,30 @@
           preview.innerHTML = "<span>No image</span>";
         }
       }
+
+      function formatDate(dateString) {
+        const date = new Date(dateString);
+        return date.toLocaleString();
+      }
+
+      function displayUserCard(user) {
+        document.getElementById("user-name").textContent = user.name;
+        document.getElementById("user-email").textContent = user.email;
+        document.getElementById("user-created").textContent = formatDate(user.createdAt);
+        document.getElementById("user-history").textContent = user.history || "[]";
+        
+        if (user.thumbnail) {
+          document.getElementById("user-img").src = `/${user.thumbnail}`;
+          document.getElementById("user-img").style.display = "block";
+          document.getElementById("no-user-img").style.display = "none";
+        } else {
+          document.getElementById("user-img").style.display = "none";
+          document.getElementById("no-user-img").style.display = "flex";
+        }
+        
+        document.getElementById("current-user").style.display = "block";
+      }
+
       // handle form submission
       document.querySelector("form").addEventListener("submit", async (e) => {
         e.preventDefault();
@@ -119,9 +238,110 @@
           form.reset();
           document.getElementById("image-preview").innerHTML =
             "<span>No image</span>";
+          
+          // Display the newly registered user
+          displayUserCard(data);
         } catch (error) {
           console.error(error);
           alert("An error occurred. Please try again later.");
+        }
+      });
+
+      // View all users button
+      document.getElementById("view-users-btn").addEventListener("click", async () => {
+        try {
+          const response = await fetch("/api/users");
+          const data = await response.json();
+          
+          const usersContainer = document.getElementById("users-container");
+          usersContainer.innerHTML = "";
+          
+          if (data.users.length === 0) {
+            usersContainer.innerHTML = "<p>No users found</p>";
+          } else {
+            data.users.forEach(user => {
+              const userDiv = document.createElement("div");
+              userDiv.className = "user-card";
+              userDiv.style.display = "block";
+              
+              let thumbnailHtml = `<div class="user-thumbnail"><span style="display: flex; height: 100%; align-items: center; justify-content: center;">No Image</span></div>`;
+              if (user.thumbnail) {
+                thumbnailHtml = `<div class="user-thumbnail"><img src="/${user.thumbnail}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;"></div>`;
+              }
+              
+              userDiv.innerHTML = `
+                <div class="user-info">
+                  ${thumbnailHtml}
+                  <div class="user-details">
+                    <p><strong>ID:</strong> ${user.id}</p>
+                    <p><strong>Name:</strong> ${user.name}</p>
+                    <p><strong>Email:</strong> ${user.email}</p>
+                    <p><strong>Created:</strong> ${formatDate(user.createdAt)}</p>
+                    <p><strong>History:</strong> ${user.history || "[]"}</p>
+                  </div>
+                </div>
+              `;
+              
+              usersContainer.appendChild(userDiv);
+            });
+          }
+          
+          // Show users section, hide registration form
+          document.querySelector("form").style.display = "none";
+          document.getElementById("current-user").style.display = "none";
+          document.getElementById("all-users-section").style.display = "block";
+        } catch (error) {
+          console.error(error);
+          alert("Failed to load users. Please try again later.");
+        }
+      });
+
+      // Back to registration button
+      document.getElementById("back-to-register").addEventListener("click", () => {
+        document.querySelector("form").style.display = "block";
+        document.getElementById("all-users-section").style.display = "none";
+      });
+
+      // View user by ID button
+      document.getElementById("view-user-btn").addEventListener("click", async () => {
+        const userId = document.getElementById("user-id-input").value;
+        if (!userId) {
+          alert("Please enter a user ID");
+          return;
+        }
+
+        try {
+          // Fetch user data from the list of all users
+          const response = await fetch("/api/users");
+          const data = await response.json();
+          
+          const user = data.users.find(u => u.id == userId);
+          if (!user) {
+            alert("User not found");
+            return;
+          }
+          
+          // Display user data
+          document.getElementById("user-by-id-id").textContent = user.id;
+          document.getElementById("user-by-id-name").textContent = user.name;
+          document.getElementById("user-by-id-email").textContent = user.email;
+          document.getElementById("user-by-id-created").textContent = formatDate(user.createdAt);
+          document.getElementById("user-by-id-history").textContent = user.history || "[]";
+          
+          if (user.thumbnail) {
+            document.getElementById("user-by-id-img").src = `/${user.thumbnail}`;
+            document.getElementById("user-by-id-img").style.display = "block";
+            document.getElementById("user-by-id-no-img").style.display = "none";
+          } else {
+            document.getElementById("user-by-id-img").style.display = "none";
+            document.getElementById("user-by-id-no-img").style.display = "flex";
+          }
+          
+          // Show the result section
+          document.getElementById("user-by-id-result").style.display = "block";
+        } catch (error) {
+          console.error(error);
+          alert("Failed to load user. Please try again later.");
         }
       });
     </script>

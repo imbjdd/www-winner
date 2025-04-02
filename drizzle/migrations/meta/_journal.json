@@ -15,6 +15,20 @@
       "when": 1739987147566,
       "tag": "0001_pale_mikhail_rasputin",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1743616393293,
+      "tag": "0002_sparkling_madrox",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1743616666894,
+      "tag": "0003_sparkling_sabra",
+      "breakpoints": true
     }
   ]
 }
