@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>User Registration</title>
+    <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
     <style>
       body {
         font-family: Arial, sans-serif;
@@ -96,6 +97,21 @@
         align-items: center;
         margin-bottom: 15px;
       }
+      #pdf-content {
+        margin-top: 15px;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background-color: #f5f5f5;
+        max-height: 200px;
+        overflow-y: auto;
+        display: none;
+      }
+      .pdf-preview-section {
+        margin-top: 15px;
+        border-top: 1px solid #ddd;
+        padding-top: 10px;
+      }
     </style>
   </head>
   <body>
@@ -170,6 +186,29 @@
             <p><strong>History:</strong> <span id="user-by-id-history"></span></p>
           </div>
         </div>
+        
+        <!-- Add PDF to History Form -->
+        <div style="margin-top: 20px; border-top: 1px solid #ddd; padding-top: 15px;">
+          <h4>Add PDF to User History</h4>
+          <div style="margin-bottom: 15px;">
+            <label for="upload-pdf" style="display: block; margin-bottom: 5px; font-weight: bold;">Select PDF File:</label>
+            <input type="file" id="upload-pdf" accept=".pdf" style="margin-bottom: 10px;">
+            <button id="analyze-pdf-btn" class="view-btn" style="margin-right: 10px;">Analyze PDF</button>
+            <button id="upload-pdf-btn" class="submit-btn">Upload PDF</button>
+          </div>
+          <!-- Section pour afficher le contenu parsé du PDF -->
+          <div class="pdf-preview-section">
+            <h5>PDF Content Preview:</h5>
+            <div id="pdf-content" style="display: none;">
+              <p>Loading PDF content...</p>
+            </div>
+            <div id="pdf-metadata" style="margin-top: 10px;">
+              <p><strong>Pages:</strong> <span id="pdf-page-count">-</span></p>
+              <p><strong>Characters:</strong> <span id="pdf-char-count">-</span></p>
+            </div>
+          </div>
+          <div id="pdf-upload-result" style="margin-top: 10px; font-style: italic;"></div>
+        </div>
       </div>
     </div>
 
@@ -181,6 +220,12 @@
     </div>
 
     <script>
+      // Définir le workerSrc pour PDF.js
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+      
+      // Stockage temporaire pour le texte extrait du PDF
+      let extractedPdfText = '';
+      
       function previewImage(input) {
         const preview = document.getElementById("image-preview");
         preview.innerHTML = "";
@@ -205,11 +250,59 @@
         return date.toLocaleString();
       }
 
+      // Fonction pour parser le contenu d'un PDF
+      async function parsePdfContent(pdfFile) {
+        const contentDiv = document.getElementById('pdf-content');
+        const pageCountSpan = document.getElementById('pdf-page-count');
+        const charCountSpan = document.getElementById('pdf-char-count');
+        
+        contentDiv.innerHTML = '<p>Analyzing PDF...</p>';
+        contentDiv.style.display = 'block';
+        
+        try {
+          // Lire le fichier comme ArrayBuffer
+          const arrayBuffer = await pdfFile.arrayBuffer();
+          
+          // Charger le document PDF
+          const pdf = await pdfjsLib.getDocument({data: arrayBuffer}).promise;
+          
+          // Mettre à jour le nombre de pages
+          pageCountSpan.textContent = pdf.numPages;
+          
+          // Extraire le texte de chaque page
+          let fullText = '';
+          
+          for (let i = 1; i <= pdf.numPages; i++) {
+            const page = await pdf.getPage(i);
+            const textContent = await page.getTextContent();
+            const textItems = textContent.items;
+            
+            // Extraire le texte de chaque item et concaténer
+            const pageText = textItems.map(item => item.str).join(' ');
+            fullText += pageText + '\n\n';
+          }
+          
+          // Mettre à jour l'affichage
+          contentDiv.innerHTML = '<pre>' + fullText.substring(0, 1000) + 
+              (fullText.length > 1000 ? '...' : '') + '</pre>';
+          charCountSpan.textContent = fullText.length;
+          
+          // Stocker le texte complet pour l'upload
+          extractedPdfText = fullText;
+          
+          return fullText;
+        } catch (error) {
+          console.error('Error parsing PDF:', error);
+          contentDiv.innerHTML = '<p style="color: red;">Error parsing PDF: ' + error.message + '</p>';
+          return '';
+        }
+      }
+
       function displayUserCard(user) {
         document.getElementById("user-name").textContent = user.name;
         document.getElementById("user-email").textContent = user.email;
         document.getElementById("user-created").textContent = formatDate(user.createdAt);
-        document.getElementById("user-history").textContent = user.history || "[]";
+        displayUserHistory(user.history, "user-history");
         
         if (user.thumbnail) {
           document.getElementById("user-img").src = `/${user.thumbnail}`;
@@ -326,7 +419,9 @@
           document.getElementById("user-by-id-name").textContent = user.name;
           document.getElementById("user-by-id-email").textContent = user.email;
           document.getElementById("user-by-id-created").textContent = formatDate(user.createdAt);
-          document.getElementById("user-by-id-history").textContent = user.history || "[]";
+          
+          // Format and display history with PDF download links
+          displayUserHistory(user.history, "user-by-id-history");
           
           if (user.thumbnail) {
             document.getElementById("user-by-id-img").src = `/${user.thumbnail}`;
@@ -337,6 +432,12 @@
             document.getElementById("user-by-id-no-img").style.display = "flex";
           }
           
+          // Réinitialiser l'aperçu PDF
+          document.getElementById('pdf-content').style.display = 'none';
+          document.getElementById('pdf-page-count').textContent = '-';
+          document.getElementById('pdf-char-count').textContent = '-';
+          extractedPdfText = '';
+          
           // Show the result section
           document.getElementById("user-by-id-result").style.display = "block";
         } catch (error) {
@@ -344,6 +445,147 @@
           alert("Failed to load user. Please try again later.");
         }
       });
+      
+      // Analyze PDF button
+      document.getElementById("analyze-pdf-btn").addEventListener("click", async () => {
+        const pdfInput = document.getElementById("upload-pdf");
+        // @ts-ignore - TS doesn't know about files property
+        const pdfFile = pdfInput.files[0];
+        
+        if (!pdfFile) {
+          alert("Please select a PDF file first");
+          return;
+        }
+        
+        await parsePdfContent(pdfFile);
+      });
+      
+      // Upload PDF to user history
+      document.getElementById("upload-pdf-btn").addEventListener("click", async () => {
+        const userId = document.getElementById("user-by-id-id").textContent;
+        const pdfInput = document.getElementById("upload-pdf");
+        const resultDiv = document.getElementById("pdf-upload-result");
+        
+        if (!userId) {
+          resultDiv.textContent = "Error: Please view a user first";
+          resultDiv.style.color = "red";
+          return;
+        }
+        
+        // @ts-ignore - TS doesn't know about files property
+        const pdfFile = pdfInput.files[0];
+        
+        if (!pdfFile) {
+          resultDiv.textContent = "Error: Please select a PDF file";
+          resultDiv.style.color = "red";
+          return;
+        }
+        
+        // Vérifier si le PDF a été analysé
+        if (!extractedPdfText) {
+          // Analyser le PDF avant l'upload
+          try {
+            await parsePdfContent(pdfFile);
+          } catch (error) {
+            console.error("Error parsing PDF before upload:", error);
+          }
+        }
+        
+        try {
+          resultDiv.textContent = "Uploading PDF...";
+          resultDiv.style.color = "blue";
+          
+          const formData = new FormData();
+          formData.append("pdf-file", pdfFile);
+          
+          // Ajouter le texte extrait du PDF à la requête
+          if (extractedPdfText) {
+            formData.append("pdf-content", extractedPdfText);
+          }
+          
+          const response = await fetch(`/api/user/${userId}/upload-pdf`, {
+            method: "POST",
+            body: formData
+          });
+          
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || "Error uploading PDF");
+          }
+          
+          const updatedUser = await response.json();
+          
+          // Update the displayed history
+          displayUserHistory(updatedUser.history, "user-by-id-history");
+          
+          resultDiv.textContent = "PDF uploaded successfully!";
+          resultDiv.style.color = "green";
+          
+          // Clear the file input and reset PDF content
+          // @ts-ignore
+          pdfInput.value = null;
+          document.getElementById('pdf-content').style.display = 'none';
+          document.getElementById('pdf-page-count').textContent = '-';
+          document.getElementById('pdf-char-count').textContent = '-';
+          extractedPdfText = '';
+        } catch (error) {
+          console.error("Error uploading PDF:", error);
+          resultDiv.textContent = `Error: ${error.message || "Failed to upload PDF"}`;
+          resultDiv.style.color = "red";
+        }
+      });
+
+      // Display user history with PDF links
+      function displayUserHistory(historyJson, targetElementId) {
+        const historyElement = document.getElementById(targetElementId);
+        
+        try {
+          const history = typeof historyJson === 'string' ? JSON.parse(historyJson) : historyJson;
+          
+          if (!history || history.length === 0) {
+            historyElement.textContent = "No history items found";
+            return;
+          }
+          
+          // Create a formatted display of history
+          historyElement.innerHTML = "";
+          const historyList = document.createElement("ul");
+          historyList.style.listStyleType = "none";
+          historyList.style.padding = "0";
+          
+          history.forEach((item, index) => {
+            const listItem = document.createElement("li");
+            listItem.style.marginBottom = "10px";
+            listItem.style.padding = "8px";
+            listItem.style.border = "1px solid #eee";
+            listItem.style.borderRadius = "4px";
+            
+            let itemContent = `
+              <div style="margin-bottom: 5px;"><strong>Date:</strong> ${formatDate(item.timestamp)}</div>
+              <div style="margin-bottom: 5px;"><strong>Answer:</strong> ${item.answer}</div>
+            `;
+            
+            if (item.pdfPath && item.pdfName) {
+              itemContent += `
+                <div>
+                  <strong>PDF:</strong> 
+                  <a href="/api/pdf/${item.pdfPath}" target="_blank" style="color: #2196F3; text-decoration: none;">
+                    ${item.pdfName} <span style="font-size: 0.8em;">▶️ View</span>
+                  </a>
+                </div>
+              `;
+            }
+            
+            listItem.innerHTML = itemContent;
+            historyList.appendChild(listItem);
+          });
+          
+          historyElement.appendChild(historyList);
+        } catch (e) {
+          console.error("Error displaying history:", e);
+          historyElement.textContent = historyJson || "[]";
+        }
+      }
     </script>
   </body>
 </html>
