@@ -3,220 +3,527 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>User Registration</title>
+    <title>User Management System</title>
     <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
+      :root {
+        --primary: #4361ee;
+        --primary-dark: #3a56d4;
+        --secondary: #2ec4b6;
+        --success: #2ec4b6;
+        --danger: #e63946;
+        --warning: #ff9f1c;
+        --light: #f8f9fa;
+        --dark: #212529;
+        --gray-100: #f8f9fa;
+        --gray-200: #e9ecef;
+        --gray-300: #dee2e6;
+        --gray-400: #ced4da;
+        --gray-500: #adb5bd;
+        --gray-600: #6c757d;
+        --gray-700: #495057;
+        --gray-800: #343a40;
+        --gray-900: #212529;
+        --border-radius: 8px;
+        --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        --transition: all 0.2s ease-in-out;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
       body {
-        font-family: Arial, sans-serif;
-        max-width: 500px;
+        font-family: 'Inter', sans-serif;
+        background-color: #f5f7fb;
+        color: var(--gray-800);
+        line-height: 1.6;
+        max-width: 1000px;
         margin: 0 auto;
         padding: 20px;
       }
-      .form-group {
-        margin-bottom: 15px;
+
+      .container {
+        background-color: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+        padding: 30px;
+        margin-bottom: 30px;
       }
+
+      h1, h2, h3, h4, h5, h6 {
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: var(--gray-900);
+      }
+
+      .form-group {
+        margin-bottom: 20px;
+      }
+
       label {
         display: block;
-        margin-bottom: 5px;
-        font-weight: bold;
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: var(--gray-700);
       }
+
       input[type="text"],
-      input[type="email"] {
+      input[type="email"],
+      input[type="number"] {
         width: 100%;
-        padding: 8px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
+        padding: 12px;
+        border: 1px solid var(--gray-300);
+        border-radius: var(--border-radius);
         box-sizing: border-box;
+        transition: var(--transition);
+        font-family: 'Inter', sans-serif;
       }
+
+      input[type="text"]:focus,
+      input[type="email"]:focus,
+      input[type="number"]:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px 20px;
+        border: none;
+        border-radius: var(--border-radius);
+        cursor: pointer;
+        font-weight: 500;
+        transition: var(--transition);
+        font-family: 'Inter', sans-serif;
+        gap: 8px;
+      }
+
+      .btn-primary {
+        background-color: var(--primary);
+        color: white;
+      }
+
+      .btn-primary:hover {
+        background-color: var(--primary-dark);
+      }
+
+      .btn-secondary {
+        background-color: var(--secondary);
+        color: white;
+      }
+
+      .btn-secondary:hover {
+        background-color: #25a99d;
+      }
+
+      .btn-danger {
+        background-color: var(--danger);
+        color: white;
+      }
+
+      .btn-danger:hover {
+        background-color: #d32f3a;
+      }
+
+      .btn-light {
+        background-color: var(--gray-200);
+        color: var(--gray-800);
+      }
+
+      .btn-light:hover {
+        background-color: var(--gray-300);
+      }
+
       .profile-preview {
         width: 100px;
         height: 100px;
         border-radius: 50%;
-        background-color: #f0f0f0;
+        background-color: var(--gray-200);
         margin: 10px 0;
         display: flex;
         align-items: center;
         justify-content: center;
         overflow: hidden;
+        box-shadow: var(--box-shadow);
       }
+
       .profile-preview img {
         max-width: 100%;
         max-height: 100%;
+        object-fit: cover;
       }
-      .submit-btn, .view-btn {
-        background-color: #4caf50;
-        color: white;
-        padding: 10px 15px;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        margin-right: 10px;
+
+      .card {
+        background-color: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+        padding: 20px;
+        margin-bottom: 20px;
+        transition: var(--transition);
       }
-      .view-btn {
-        background-color: #2196F3;
+
+      .card:hover {
+        box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
       }
-      .submit-btn:hover {
-        background-color: #45a049;
-      }
-      .view-btn:hover {
-        background-color: #0b7dda;
-      }
-      .user-card {
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        padding: 15px;
-        margin: 20px 0;
-        background-color: #f9f9f9;
-        display: none;
-      }
-      .user-card h3 {
-        margin-top: 0;
-        color: #333;
-      }
-      .user-thumbnail {
-        width: 80px;
-        height: 80px;
-        border-radius: 50%;
-        background-color: #e0e0e0;
-        margin-right: 15px;
-      }
-      .user-info {
-        display: flex;
-        align-items: center;
-      }
-      .user-details {
-        flex: 1;
-      }
-      .user-list {
-        margin-top: 30px;
-        display: none;
-      }
-      .section-title {
+
+      .card-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
         margin-bottom: 15px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid var(--gray-200);
       }
-      #pdf-content {
-        margin-top: 15px;
-        padding: 10px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        background-color: #f5f5f5;
-        max-height: 200px;
-        overflow-y: auto;
+
+      .user-card {
         display: none;
       }
-      .pdf-preview-section {
+
+      .user-thumbnail {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background-color: var(--gray-200);
+        margin-right: 20px;
+        overflow: hidden;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+
+      .user-info {
+        display: flex;
+        align-items: flex-start;
+      }
+
+      .user-details {
+        flex: 1;
+      }
+
+      .user-details p {
+        margin-bottom: 8px;
+      }
+
+      .section-title {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+
+      .tab-group {
+        display: flex;
+        border-bottom: 1px solid var(--gray-300);
+        margin-bottom: 20px;
+      }
+
+      .tab {
+        padding: 10px 20px;
+        cursor: pointer;
+        border-bottom: 3px solid transparent;
+        font-weight: 500;
+        transition: var(--transition);
+      }
+
+      .tab.active {
+        border-bottom-color: var(--primary);
+        color: var(--primary);
+      }
+
+      #pdf-content {
         margin-top: 15px;
-        border-top: 1px solid #ddd;
-        padding-top: 10px;
+        padding: 15px;
+        border: 1px solid var(--gray-300);
+        border-radius: var(--border-radius);
+        background-color: var(--gray-100);
+        max-height: 300px;
+        overflow-y: auto;
+        font-family: monospace;
+        font-size: 14px;
+        line-height: 1.5;
+        display: none;
+      }
+
+      .pdf-preview-section {
+        margin-top: 20px;
+        border-top: 1px solid var(--gray-300);
+        padding-top: 20px;
+      }
+
+      .badge {
+        display: inline-block;
+        padding: 5px 10px;
+        border-radius: 100px;
+        font-size: 12px;
+        font-weight: 500;
+        margin-right: 5px;
+      }
+
+      .badge-primary {
+        background-color: rgba(67, 97, 238, 0.1);
+        color: var(--primary);
+      }
+
+      .badge-success {
+        background-color: rgba(46, 196, 182, 0.1);
+        color: var(--success);
+      }
+
+      .material-icons {
+        font-size: 18px;
+      }
+
+      .loading {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 3px solid rgba(255,255,255,.3);
+        border-radius: 50%;
+        border-top-color: #fff;
+        animation: spin 1s ease-in-out infinite;
+      }
+
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+
+      /* Responsive layout */
+      @media (max-width: 768px) {
+        .user-info {
+          flex-direction: column;
+        }
+        
+        .user-thumbnail {
+          margin-right: 0;
+          margin-bottom: 15px;
+        }
+      }
+
+      .history-item {
+        margin-bottom: 15px;
+        padding: 15px;
+        border: 1px solid var(--gray-300);
+        border-radius: var(--border-radius);
+        background-color: white;
+        transition: var(--transition);
+      }
+
+      .history-item:hover {
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.05);
+      }
+
+      .app-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+      }
+
+      .app-title {
+        font-size: 2rem;
+        color: var(--primary);
+        margin: 0;
+      }
+
+      .flex-row {
+        display: flex;
+        flex-wrap: wrap;
+        margin: 0 -10px;
+      }
+
+      .flex-col {
+        flex: 1;
+        padding: 0 10px;
+        min-width: 300px;
       }
     </style>
   </head>
   <body>
-    <div class="section-title">
-      <h1>User Registration</h1>
-      <button id="view-users-btn" class="view-btn">View All Users</button>
+    <div class="app-header">
+      <h1 class="app-title">User Management System</h1>
+      <div>
+        <button id="view-users-btn" class="btn btn-light">
+          <span class="material-icons">people</span> View All Users
+        </button>
+      </div>
     </div>
     
-    <form method="post" enctype="multipart/form-data">
-      <div class="form-group">
-        <label for="name">Full Name:</label>
-        <input type="text" id="name" name="name" required />
-      </div>
-
-      <div class="form-group">
-        <label for="email">Email Address:</label>
-        <input type="email" id="email" name="email" required />
-      </div>
-
-      <div class="form-group">
-        <label for="profile-pic">Profile Picture:</label>
-        <input
-          type="file"
-          id="profile-pic"
-          name="profile-pic"
-          accept="image/*"
-          onchange="previewImage(this)"
-        />
-        <div class="profile-preview" id="image-preview">
-          <span>No image</span>
+    <div class="tab-group">
+      <div class="tab active" data-tab="register">Register New User</div>
+      <div class="tab" data-tab="view">View User by ID</div>
+    </div>
+    
+    <div id="register-tab" class="tab-content">
+      <div class="container">
+        <div class="card-header">
+          <h2>Create New User</h2>
         </div>
+        
+        <form method="post" enctype="multipart/form-data">
+          <div class="form-group">
+            <label for="name">Full Name</label>
+            <input type="text" id="name" name="name" required placeholder="Enter full name" />
+          </div>
+
+          <div class="form-group">
+            <label for="email">Email Address</label>
+            <input type="email" id="email" name="email" required placeholder="Enter email address" />
+          </div>
+
+          <div class="form-group">
+            <label for="profile-pic">Profile Picture</label>
+            <input
+              type="file"
+              id="profile-pic"
+              name="profile-pic"
+              accept="image/*"
+              onchange="previewImage(this)"
+              class="btn btn-light"
+            />
+            <div class="profile-preview" id="image-preview">
+              <span>No image</span>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary">
+            <span class="material-icons">person_add</span> Register User
+          </button>
+        </form>
       </div>
 
-      <button type="submit" class="submit-btn">Register</button>
-    </form>
-
-    <!-- Current User Card -->
-    <div class="user-card" id="current-user">
-      <h3>Registration Complete</h3>
-      <div class="user-info">
-        <div class="user-thumbnail" id="user-thumbnail">
-          <img id="user-img" src="" alt="Profile Picture" style="width: 100%; height: 100%; object-fit: cover; display: none;">
-          <span id="no-user-img" style="display: flex; height: 100%; align-items: center; justify-content: center;">No Image</span>
+      <!-- Current User Card -->
+      <div class="card user-card" id="current-user">
+        <div class="card-header">
+          <h3>Registration Complete</h3>
+          <span class="badge badge-success">New User</span>
         </div>
-        <div class="user-details">
-          <p><strong>Name:</strong> <span id="user-name"></span></p>
-          <p><strong>Email:</strong> <span id="user-email"></span></p>
-          <p><strong>Created:</strong> <span id="user-created"></span></p>
-          <p><strong>History:</strong> <span id="user-history"></span></p>
+        <div class="user-info">
+          <div class="user-thumbnail" id="user-thumbnail">
+            <img id="user-img" src="" alt="Profile Picture" style="width: 100%; height: 100%; object-fit: cover; display: none;">
+            <span id="no-user-img" style="display: flex; height: 100%; align-items: center; justify-content: center;">No Image</span>
+          </div>
+          <div class="user-details">
+            <p><strong>Name:</strong> <span id="user-name"></span></p>
+            <p><strong>Email:</strong> <span id="user-email"></span></p>
+            <p><strong>Created:</strong> <span id="user-created"></span></p>
+            <h4 style="margin-top: 15px;">History</h4>
+            <div id="user-history"></div>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- View User by ID Section -->
-    <div style="margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9;">
-      <h3>View User by ID</h3>
-      <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-        <input type="number" id="user-id-input" placeholder="Enter user ID" style="flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-        <button id="view-user-btn" class="view-btn">View User</button>
-      </div>
-      <div id="user-by-id-result" style="display: none;">
-        <div class="user-info">
-          <div class="user-thumbnail" id="user-by-id-thumbnail">
-            <span id="user-by-id-no-img" style="display: flex; height: 100%; align-items: center; justify-content: center;">No Image</span>
-            <img id="user-by-id-img" src="" alt="Profile Picture" style="width: 100%; height: 100%; object-fit: cover; display: none;">
-          </div>
-          <div class="user-details">
-            <p><strong>ID:</strong> <span id="user-by-id-id"></span></p>
-            <p><strong>Name:</strong> <span id="user-by-id-name"></span></p>
-            <p><strong>Email:</strong> <span id="user-by-id-email"></span></p>
-            <p><strong>Created:</strong> <span id="user-by-id-created"></span></p>
-            <p><strong>History:</strong> <span id="user-by-id-history"></span></p>
+    <div id="view-tab" class="tab-content" style="display: none;">
+      <div class="container">
+        <div class="card-header">
+          <h2>View User Details</h2>
+        </div>
+        
+        <div class="form-group">
+          <label for="user-id-input">User ID</label>
+          <div style="display: flex; gap: 10px;">
+            <input type="number" id="user-id-input" placeholder="Enter user ID" style="flex: 1;">
+            <button id="view-user-btn" class="btn btn-primary">
+              <span class="material-icons">search</span> Find User
+            </button>
           </div>
         </div>
         
-        <!-- Add PDF to History Form -->
-        <div style="margin-top: 20px; border-top: 1px solid #ddd; padding-top: 15px;">
-          <h4>Add PDF to User History</h4>
-          <div style="margin-bottom: 15px;">
-            <label for="upload-pdf" style="display: block; margin-bottom: 5px; font-weight: bold;">Select PDF File:</label>
-            <input type="file" id="upload-pdf" accept=".pdf" style="margin-bottom: 10px;">
-            <button id="analyze-pdf-btn" class="view-btn" style="margin-right: 10px;">Analyze PDF</button>
-            <button id="upload-pdf-btn" class="submit-btn">Upload PDF</button>
-          </div>
-          <!-- Section pour afficher le contenu parsé du PDF -->
-          <div class="pdf-preview-section">
-            <h5>PDF Content Preview:</h5>
-            <div id="pdf-content" style="display: none;">
-              <p>Loading PDF content...</p>
+        <div id="user-by-id-result" style="display: none;">
+          <div class="card">
+            <div class="card-header">
+              <h3>User Profile</h3>
+              <div>
+                <span class="badge badge-primary">ID: <span id="user-by-id-id"></span></span>
+              </div>
             </div>
-            <div id="pdf-metadata" style="margin-top: 10px;">
-              <p><strong>Pages:</strong> <span id="pdf-page-count">-</span></p>
-              <p><strong>Characters:</strong> <span id="pdf-char-count">-</span></p>
+            <div class="user-info">
+              <div class="user-thumbnail" id="user-by-id-thumbnail">
+                <span id="user-by-id-no-img" style="display: flex; height: 100%; align-items: center; justify-content: center;">No Image</span>
+                <img id="user-by-id-img" src="" alt="Profile Picture" style="width: 100%; height: 100%; object-fit: cover; display: none;">
+              </div>
+              <div class="user-details">
+                <p><strong>Name:</strong> <span id="user-by-id-name"></span></p>
+                <p><strong>Email:</strong> <span id="user-by-id-email"></span></p>
+                <p><strong>Created:</strong> <span id="user-by-id-created"></span></p>
+              </div>
             </div>
           </div>
-          <div id="pdf-upload-result" style="margin-top: 10px; font-style: italic;"></div>
+          
+          <!-- User History Section -->
+          <div class="card" style="margin-top: 20px;">
+            <div class="card-header">
+              <h3>User History</h3>
+            </div>
+            <div id="user-by-id-history"></div>
+          </div>
+          
+          <!-- Add PDF to History Form -->
+          <div class="card" style="margin-top: 20px;">
+            <div class="card-header">
+              <h3>Add PDF to User History</h3>
+            </div>
+            <div class="form-group">
+              <label for="upload-pdf">Select PDF File</label>
+              <input type="file" id="upload-pdf" accept=".pdf" class="btn btn-light" style="display: block; margin-bottom: 15px;">
+              <div class="flex-row">
+                <button id="analyze-pdf-btn" class="btn btn-secondary" style="margin-right: 10px;">
+                  <span class="material-icons">search</span> Analyze PDF
+                </button>
+                <button id="upload-pdf-btn" class="btn btn-primary">
+                  <span class="material-icons">cloud_upload</span> Upload PDF
+                </button>
+              </div>
+            </div>
+            
+            <!-- PDF Analysis Section -->
+            <div class="pdf-preview-section">
+              <h4>PDF Content Analysis</h4>
+              <div style="display: flex; margin-bottom: 15px;">
+                <div style="flex: 1; padding-right: 10px;">
+                  <div class="badge badge-primary" style="margin-bottom: 10px;">
+                    <span class="material-icons" style="font-size: 14px; margin-right: 5px;">description</span>
+                    Pages: <span id="pdf-page-count">-</span>
+                  </div>
+                </div>
+                <div style="flex: 1; padding-left: 10px;">
+                  <div class="badge badge-primary" style="margin-bottom: 10px;">
+                    <span class="material-icons" style="font-size: 14px; margin-right: 5px;">text_format</span>
+                    Characters: <span id="pdf-char-count">-</span>
+                  </div>
+                </div>
+              </div>
+              <div id="pdf-content" style="display: none;">
+                <p>Loading PDF content...</p>
+              </div>
+            </div>
+            
+            <div id="pdf-upload-result" style="margin-top: 15px; padding: 10px; border-radius: var(--border-radius); display: none;"></div>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- All Users Section -->
-    <div class="user-list" id="all-users-section">
-      <h2>All Users</h2>
-      <div id="users-container"></div>
-      <button id="back-to-register" class="submit-btn">Back to Registration</button>
+    <div id="all-users-section" style="display: none;">
+      <div class="app-header">
+        <h2>All Users</h2>
+        <button id="back-to-register" class="btn btn-light">
+          <span class="material-icons">arrow_back</span> Back
+        </button>
+      </div>
+      
+      <div id="users-container" class="flex-row"></div>
     </div>
 
     <script>
@@ -225,6 +532,25 @@
       
       // Stockage temporaire pour le texte extrait du PDF
       let extractedPdfText = '';
+      
+      // Tab functionality
+      document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          // Remove active class from all tabs
+          document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+          // Add active class to clicked tab
+          tab.classList.add('active');
+          
+          // Hide all tab content
+          document.querySelectorAll('.tab-content').forEach(content => {
+            content.style.display = 'none';
+          });
+          
+          // Show selected tab content
+          const tabId = tab.getAttribute('data-tab');
+          document.getElementById(tabId + '-tab').style.display = 'block';
+        });
+      });
       
       function previewImage(input) {
         const preview = document.getElementById("image-preview");
@@ -256,7 +582,7 @@
         const pageCountSpan = document.getElementById('pdf-page-count');
         const charCountSpan = document.getElementById('pdf-char-count');
         
-        contentDiv.innerHTML = '<p>Analyzing PDF...</p>';
+        contentDiv.innerHTML = '<div style="text-align: center; padding: 20px;"><div class="loading" style="border-top-color: var(--primary);"></div><p style="margin-top: 10px;">Analyzing PDF...</p></div>';
         contentDiv.style.display = 'block';
         
         try {
@@ -293,7 +619,7 @@
           return fullText;
         } catch (error) {
           console.error('Error parsing PDF:', error);
-          contentDiv.innerHTML = '<p style="color: red;">Error parsing PDF: ' + error.message + '</p>';
+          contentDiv.innerHTML = '<p style="color: var(--danger);">Error parsing PDF: ' + error.message + '</p>';
           return '';
         }
       }
@@ -321,97 +647,164 @@
         e.preventDefault();
         const form = e.target;
         const formData = new FormData(form);
+        
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const originalBtnText = submitBtn.innerHTML;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<div class="loading"></div> Processing...';
 
         try {
           const response = await fetch("/api/user", {
             method: "POST",
             body: formData,
           });
+          
+          if (!response.ok) {
+            throw new Error(`Server responded with status: ${response.status}`);
+          }
+          
           const data = await response.json();
           form.reset();
-          document.getElementById("image-preview").innerHTML =
-            "<span>No image</span>";
+          document.getElementById("image-preview").innerHTML = "<span>No image</span>";
           
           // Display the newly registered user
           displayUserCard(data);
+          
+          // Show success notification
+          showNotification('User registered successfully!', 'success');
         } catch (error) {
           console.error(error);
-          alert("An error occurred. Please try again later.");
+          showNotification('Error: ' + error.message, 'error');
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = originalBtnText;
         }
       });
 
       // View all users button
       document.getElementById("view-users-btn").addEventListener("click", async () => {
         try {
+          // Show loading state
+          document.getElementById("users-container").innerHTML = '<div style="width: 100%; text-align: center; padding: 30px;"><div class="loading" style="border-top-color: var(--primary);"></div><p style="margin-top: 15px;">Loading users...</p></div>';
+          
           const response = await fetch("/api/users");
+          
+          if (!response.ok) {
+            throw new Error(`Server responded with status: ${response.status}`);
+          }
+          
           const data = await response.json();
           
           const usersContainer = document.getElementById("users-container");
           usersContainer.innerHTML = "";
           
           if (data.users.length === 0) {
-            usersContainer.innerHTML = "<p>No users found</p>";
+            usersContainer.innerHTML = '<div class="card" style="width: 100%; text-align: center; padding: 30px;"><p>No users found</p></div>';
           } else {
             data.users.forEach(user => {
               const userDiv = document.createElement("div");
-              userDiv.className = "user-card";
-              userDiv.style.display = "block";
+              userDiv.className = "flex-col";
               
-              let thumbnailHtml = `<div class="user-thumbnail"><span style="display: flex; height: 100%; align-items: center; justify-content: center;">No Image</span></div>`;
+              let thumbnailHtml = `<div class="user-thumbnail" style="margin: 0 auto 15px auto"><span style="display: flex; height: 100%; align-items: center; justify-content: center;">No Image</span></div>`;
               if (user.thumbnail) {
-                thumbnailHtml = `<div class="user-thumbnail"><img src="/${user.thumbnail}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;"></div>`;
+                thumbnailHtml = `<div class="user-thumbnail" style="margin: 0 auto 15px auto"><img src="/${user.thumbnail}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;"></div>`;
+              }
+              
+              // Parse history to get count
+              let historyCount = 0;
+              try {
+                const history = JSON.parse(user.history || '[]');
+                historyCount = history.length;
+              } catch (e) {
+                console.error('Error parsing history:', e);
               }
               
               userDiv.innerHTML = `
-                <div class="user-info">
+                <div class="card" style="text-align: center;">
                   ${thumbnailHtml}
-                  <div class="user-details">
-                    <p><strong>ID:</strong> ${user.id}</p>
-                    <p><strong>Name:</strong> ${user.name}</p>
-                    <p><strong>Email:</strong> ${user.email}</p>
-                    <p><strong>Created:</strong> ${formatDate(user.createdAt)}</p>
-                    <p><strong>History:</strong> ${user.history || "[]"}</p>
+                  <h3>${user.name}</h3>
+                  <p style="color: var(--gray-600); margin-bottom: 15px;">${user.email}</p>
+                  <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+                    <span class="badge badge-primary">ID: ${user.id}</span>
+                    <span class="badge badge-primary">History: ${historyCount} item(s)</span>
                   </div>
+                  <p style="font-size: 14px; color: var(--gray-600);">Created: ${formatDate(user.createdAt)}</p>
+                  <button class="btn btn-primary view-specific-user" data-id="${user.id}" style="width: 100%; margin-top: 15px;">
+                    <span class="material-icons">visibility</span> View Details
+                  </button>
                 </div>
               `;
               
               usersContainer.appendChild(userDiv);
             });
+            
+            // Add event listeners for the view buttons
+            document.querySelectorAll('.view-specific-user').forEach(btn => {
+              btn.addEventListener('click', () => {
+                const userId = btn.getAttribute('data-id');
+                document.getElementById("user-id-input").value = userId;
+                document.getElementById("view-user-btn").click();
+                
+                // Switch to view tab
+                document.querySelector('.tab[data-tab="view"]').click();
+                
+                // Hide all users section
+                document.getElementById("all-users-section").style.display = "none";
+              });
+            });
           }
           
           // Show users section, hide registration form
-          document.querySelector("form").style.display = "none";
-          document.getElementById("current-user").style.display = "none";
+          document.getElementById("register-tab").style.display = "none";
+          document.getElementById("view-tab").style.display = "none";
           document.getElementById("all-users-section").style.display = "block";
         } catch (error) {
           console.error(error);
-          alert("Failed to load users. Please try again later.");
+          showNotification('Failed to load users: ' + error.message, 'error');
         }
       });
 
       // Back to registration button
       document.getElementById("back-to-register").addEventListener("click", () => {
-        document.querySelector("form").style.display = "block";
+        document.getElementById("register-tab").style.display = "block";
         document.getElementById("all-users-section").style.display = "none";
+        
+        // Set the active tab
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelector('.tab[data-tab="register"]').classList.add('active');
       });
 
       // View user by ID button
       document.getElementById("view-user-btn").addEventListener("click", async () => {
         const userId = document.getElementById("user-id-input").value;
         if (!userId) {
-          alert("Please enter a user ID");
+          showNotification('Please enter a user ID', 'error');
           return;
         }
+        
+        const viewBtn = document.getElementById("view-user-btn");
+        const originalBtnText = viewBtn.innerHTML;
+        viewBtn.disabled = true;
+        viewBtn.innerHTML = '<div class="loading"></div> Searching...';
+        
+        // Hide previous results
+        document.getElementById("user-by-id-result").style.display = "none";
+        document.getElementById("pdf-content").style.display = "none";
+        document.getElementById("pdf-upload-result").style.display = "none";
 
         try {
           // Fetch user data from the list of all users
           const response = await fetch("/api/users");
+          
+          if (!response.ok) {
+            throw new Error(`Server responded with status: ${response.status}`);
+          }
+          
           const data = await response.json();
           
           const user = data.users.find(u => u.id == userId);
           if (!user) {
-            alert("User not found");
-            return;
+            throw new Error("User not found");
           }
           
           // Display user data
@@ -442,7 +835,10 @@
           document.getElementById("user-by-id-result").style.display = "block";
         } catch (error) {
           console.error(error);
-          alert("Failed to load user. Please try again later.");
+          showNotification('Error: ' + error.message, 'error');
+        } finally {
+          viewBtn.disabled = false;
+          viewBtn.innerHTML = originalBtnText;
         }
       });
       
@@ -453,11 +849,24 @@
         const pdfFile = pdfInput.files[0];
         
         if (!pdfFile) {
-          alert("Please select a PDF file first");
+          showNotification('Please select a PDF file first', 'error');
           return;
         }
         
-        await parsePdfContent(pdfFile);
+        const analyzeBtn = document.getElementById("analyze-pdf-btn");
+        const originalBtnText = analyzeBtn.innerHTML;
+        analyzeBtn.disabled = true;
+        analyzeBtn.innerHTML = '<div class="loading"></div> Analyzing...';
+        
+        try {
+          await parsePdfContent(pdfFile);
+          showNotification('PDF analysis complete', 'success');
+        } catch (error) {
+          showNotification('Error analyzing PDF: ' + error.message, 'error');
+        } finally {
+          analyzeBtn.disabled = false;
+          analyzeBtn.innerHTML = originalBtnText;
+        }
       });
       
       // Upload PDF to user history
@@ -467,8 +876,7 @@
         const resultDiv = document.getElementById("pdf-upload-result");
         
         if (!userId) {
-          resultDiv.textContent = "Error: Please view a user first";
-          resultDiv.style.color = "red";
+          showNotification('Error: Please view a user first', 'error');
           return;
         }
         
@@ -476,10 +884,20 @@
         const pdfFile = pdfInput.files[0];
         
         if (!pdfFile) {
-          resultDiv.textContent = "Error: Please select a PDF file";
-          resultDiv.style.color = "red";
+          showNotification('Error: Please select a PDF file', 'error');
           return;
         }
+        
+        const uploadBtn = document.getElementById("upload-pdf-btn");
+        const originalBtnText = uploadBtn.innerHTML;
+        uploadBtn.disabled = true;
+        uploadBtn.innerHTML = '<div class="loading"></div> Uploading...';
+        
+        // Display uploading message
+        resultDiv.style.display = 'block';
+        resultDiv.style.backgroundColor = 'rgba(67, 97, 238, 0.1)';
+        resultDiv.style.color = 'var(--primary)';
+        resultDiv.innerHTML = '<div class="loading" style="border-top-color: var(--primary); display: inline-block; vertical-align: middle; margin-right: 10px;"></div> Uploading PDF and analyzing content...';
         
         // Vérifier si le PDF a été analysé
         if (!extractedPdfText) {
@@ -491,10 +909,7 @@
           }
         }
         
-        try {
-          resultDiv.textContent = "Uploading PDF...";
-          resultDiv.style.color = "blue";
-          
+        try {          
           const formData = new FormData();
           formData.append("pdf-file", pdfFile);
           
@@ -518,8 +933,10 @@
           // Update the displayed history
           displayUserHistory(updatedUser.history, "user-by-id-history");
           
-          resultDiv.textContent = "PDF uploaded successfully!";
-          resultDiv.style.color = "green";
+          // Show success message
+          resultDiv.style.backgroundColor = 'rgba(46, 196, 182, 0.1)';
+          resultDiv.style.color = 'var(--success)';
+          resultDiv.innerHTML = '<span class="material-icons" style="vertical-align: middle; margin-right: 10px;">check_circle</span> PDF uploaded and processed successfully!';
           
           // Clear the file input and reset PDF content
           // @ts-ignore
@@ -528,10 +945,18 @@
           document.getElementById('pdf-page-count').textContent = '-';
           document.getElementById('pdf-char-count').textContent = '-';
           extractedPdfText = '';
+          
+          showNotification('PDF uploaded successfully!', 'success');
         } catch (error) {
           console.error("Error uploading PDF:", error);
-          resultDiv.textContent = `Error: ${error.message || "Failed to upload PDF"}`;
-          resultDiv.style.color = "red";
+          resultDiv.style.backgroundColor = 'rgba(230, 57, 70, 0.1)';
+          resultDiv.style.color = 'var(--danger)';
+          resultDiv.innerHTML = '<span class="material-icons" style="vertical-align: middle; margin-right: 10px;">error</span> ' + (error.message || "Failed to upload PDF");
+          
+          showNotification('Error: ' + (error.message || "Failed to upload PDF"), 'error');
+        } finally {
+          uploadBtn.disabled = false;
+          uploadBtn.innerHTML = originalBtnText;
         }
       });
 
@@ -543,48 +968,109 @@
           const history = typeof historyJson === 'string' ? JSON.parse(historyJson) : historyJson;
           
           if (!history || history.length === 0) {
-            historyElement.textContent = "No history items found";
+            historyElement.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--gray-600);">No history items found</div>';
             return;
           }
           
           // Create a formatted display of history
           historyElement.innerHTML = "";
-          const historyList = document.createElement("ul");
-          historyList.style.listStyleType = "none";
-          historyList.style.padding = "0";
           
           history.forEach((item, index) => {
-            const listItem = document.createElement("li");
-            listItem.style.marginBottom = "10px";
-            listItem.style.padding = "8px";
-            listItem.style.border = "1px solid #eee";
-            listItem.style.borderRadius = "4px";
+            const historyItemDiv = document.createElement("div");
+            historyItemDiv.className = "history-item";
             
-            let itemContent = `
-              <div style="margin-bottom: 5px;"><strong>Date:</strong> ${formatDate(item.timestamp)}</div>
-              <div style="margin-bottom: 5px;"><strong>Answer:</strong> ${item.answer}</div>
-            `;
-            
+            let pdfLink = '';
             if (item.pdfPath && item.pdfName) {
-              itemContent += `
-                <div>
-                  <strong>PDF:</strong> 
-                  <a href="/api/pdf/${item.pdfPath}" target="_blank" style="color: #2196F3; text-decoration: none;">
-                    ${item.pdfName} <span style="font-size: 0.8em;">▶️ View</span>
-                  </a>
+              pdfLink = `
+                <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--gray-200);">
+                  <div style="display: flex; align-items: center;">
+                    <span class="material-icons" style="color: var(--primary); margin-right: 10px;">description</span>
+                    <div style="flex: 1;">
+                      <div style="font-weight: 500; margin-bottom: 5px;">${item.pdfName}</div>
+                      <a href="/api/pdf/${item.pdfPath}" target="_blank" class="btn btn-primary" style="font-size: 12px; padding: 5px 10px;">
+                        <span class="material-icons" style="font-size: 14px;">visibility</span> View PDF
+                      </a>
+                    </div>
+                  </div>
                 </div>
               `;
             }
             
-            listItem.innerHTML = itemContent;
-            historyList.appendChild(listItem);
+            historyItemDiv.innerHTML = `
+              <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                <span style="font-size: 12px; color: var(--gray-600);">${formatDate(item.timestamp)}</span>
+                <span class="badge badge-primary">Item #${index + 1}</span>
+              </div>
+              <div style="margin-bottom: 10px;">
+                <p>${item.answer}</p>
+              </div>
+              ${pdfLink}
+            `;
+            
+            historyElement.appendChild(historyItemDiv);
           });
-          
-          historyElement.appendChild(historyList);
         } catch (e) {
           console.error("Error displaying history:", e);
-          historyElement.textContent = historyJson || "[]";
+          historyElement.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--danger);"><span class="material-icons" style="vertical-align: middle; margin-right: 5px;">error</span> Error displaying history</div>';
         }
+      }
+      
+      // Show notification
+      function showNotification(message, type = 'info') {
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.style.position = 'fixed';
+        notification.style.bottom = '20px';
+        notification.style.right = '20px';
+        notification.style.padding = '15px 20px';
+        notification.style.borderRadius = 'var(--border-radius)';
+        notification.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+        notification.style.zIndex = '1000';
+        notification.style.display = 'flex';
+        notification.style.alignItems = 'center';
+        notification.style.maxWidth = '300px';
+        notification.style.transition = 'all 0.3s ease';
+        notification.style.opacity = '0';
+        notification.style.transform = 'translateY(20px)';
+        
+        // Set color based on type
+        let icon = 'info';
+        if (type === 'success') {
+          notification.style.backgroundColor = 'var(--success)';
+          notification.style.color = 'white';
+          icon = 'check_circle';
+        } else if (type === 'error') {
+          notification.style.backgroundColor = 'var(--danger)';
+          notification.style.color = 'white';
+          icon = 'error';
+        } else {
+          notification.style.backgroundColor = 'var(--primary)';
+          notification.style.color = 'white';
+        }
+        
+        notification.innerHTML = `
+          <span class="material-icons" style="margin-right: 10px;">${icon}</span>
+          <span>${message}</span>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Animate in
+        setTimeout(() => {
+          notification.style.opacity = '1';
+          notification.style.transform = 'translateY(0)';
+        }, 50);
+        
+        // Remove after 4 seconds
+        setTimeout(() => {
+          notification.style.opacity = '0';
+          notification.style.transform = 'translateY(20px)';
+          
+          // Remove from DOM after animation
+          setTimeout(() => {
+            document.body.removeChild(notification);
+          }, 300);
+        }, 4000);
       }
     </script>
   </body>
